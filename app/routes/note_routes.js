@@ -91,6 +91,21 @@ module.exports = function(app, db) {
 
     })
 
+    app.post('/auth', (req, res) => {
+      const details = {'login':req.body.login, 'password':req.body.password}
+      db.collection('users').findOne(details, (err, item) => {
+        if(err) {
+          res.status(404)
+            .send('Not found');
+        }
+        else {
+          res.status(200)
+            .sendFile(path.join(__dirname + "/../web/private/index.html"))
+        }
+      })
+
+    })
+
     /* WEBSITE ENDS HERE */
 
 }
