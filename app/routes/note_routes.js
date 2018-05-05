@@ -136,7 +136,14 @@ module.exports = function(app, db) {
     })
 
     app.post('/register', (req, res) => {
-      const details = {'login': req.body.login, 'password': req.body.password, 'password_verify':req.body.password_verify}
+      const details = {'login': req.body.login, 'password': req.body.password}
+      db.collection('users').insert(details, (err, result) => {
+        if (err) { 
+          res.send({ 'error': 'An error has occurred' }); 
+        } else {
+          res.redirect('/')
+        }
+      });
     })
 
     /* WEBSITE ENDS HERE */
