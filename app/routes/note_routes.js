@@ -1,5 +1,6 @@
 const mongodb        = require('mongodb');
 const sms            = require('../sms/smsc_api');
+const path           = require('path');
 
 sms.configure({
   login: 'vk_510857',
@@ -11,6 +12,8 @@ sms.test((err) => {
 })
 
 module.exports = function(app, db) {
+
+    /* MONGODB STARTS HERE */
 
     app.get('/notes/:id', (req, res) => {
         const id = req.params.id;
@@ -61,6 +64,9 @@ module.exports = function(app, db) {
         });
       });
 
+    /* MONGODB ENDS HERE */
+
+    /* SMS STARTS HERE */
     app.post('/sms', (req, res) => {
       const thesms = {text: req.body.text, num: req.body.num}
       sms.send_sms({
@@ -74,5 +80,17 @@ module.exports = function(app, db) {
     });
     
     })
+
+    /* SMS ENDS HERE */
+
+    /* WEBSITE STARTS HERE */
+
+    app.get('/', (req, res) => {
+    
+      res.sendFile(path.join(__dirname + '../web/index.html'))
+
+    })
+
+    /* WEBSITE ENDS HERE */
 
 }
