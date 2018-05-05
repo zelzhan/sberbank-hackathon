@@ -19,15 +19,15 @@
                   </ul>
                   <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                <form method="POST" action="/auth">
+                                <form method="POST" action="/auth" id="authForm">
                                     <div class="form-group">
                                       <label for="exampleInputEmail1">Логин</label>
-                                      <input type="login" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Введите логин">
+                                      <input name="login" type="login" class="form-control" aria-describedby="emailHelp" placeholder="Введите логин">
                                       <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                                     </div>
                                     <div class="form-group">
                                       <label for="exampleInputPassword1">Пароль</label>
-                                      <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Введите пароль">
+                                      <input name="password" type="password" class="form-control" id="exampleInputPassword1" placeholder="Введите пароль">
                                     </div>
                                     <div class="form-group form-check">
                                       <input type="checkbox" class="form-check-input" id="exampleCheck1">
@@ -37,25 +37,88 @@
                                 </form>
                     </div>
                     <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                            <form>
+                            <form method="POST" action="/register" id = "registerForm" onsubmit="beforeSubmit()">
                                 <div class="form-group">
                                     <label for="exampleInputEmail1">Логин</label>
-                                    <input type="login" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Введите логин">
+                                    <input name="login" type="login" class="form-control" aria-describedby="emailHelp" placeholder="Введите логин">
                                     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="exampleInputPassword1">Пароль</label>
-                                    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Введите пароль">
+                                    <input name="password" type="password" class="form-control" placeholder="Введите пароль" onchange="testEquality()">
                                 </div>
                                 <div class="form-group">
-                                        <label for="exampleInputPassword1">Пароль</label>
-                                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Повторите пароль">
+                                        <label for="exampleInputPassword1">Повторите пароль</label>
+                                        <input name="password_verify" type="password" class="form-control"  placeholder="Повторите пароль" onchange="testEquality()">
                                     </div>
-                                <button type="submit" class="btn btn-primary">Регистрация</button>
+                                <button onclick="beforeSubmit()" class="btn btn-primary">Регистрация</button>
                             </form>
                     </div>
 
                   </div>
     </body>
+
+    <script>
+
+    $("input.form-control").on({
+        keydown: function(e) {
+        if (e.which === 32)
+            return false;
+        },
+        change: function() {
+            this.value = this.value.replace(/\s/g, "");
+        }
+    });
+
+    function testEquality() {
+        var first = $("#registerForm").find("input")[1]
+        var second = $("#registerForm").find("input")[2]
+        if(first.value == second.value && first.value != "" && second.value != "") {
+            first = $(first)
+            second = $(second)
+            first.removeClass("is-invalid")
+            second.removeClass("is-invalid")
+            first.addClass("is-valid")
+            second.addClass("is-valid")
+        } else {
+            first = $(first)
+            second = $(second)
+            first.removeClass("is-valid")
+            second.removeClass("is-valid")
+            first.addClass("is-invalid")
+            second.addClass("is-invalid")
+        }
+    }
+
+    function beforeSubmit() {
+        var first = $("#registerForm").find("input")[1]
+        var second = $("#registerForm").find("input")[2]
+        if(first.value == second.value && first.value != "" && second.value != "") {
+            return true;
+        }
+        else {
+            alert("Error")
+        }
+    }
+
+
+
+    function genSMS() {
+        if($("#registerForm").find("input")[1].value == $("#registerForm").find("input")[2])
+        var data = {
+            "login": $("#registerForm").find("input")[0].value,
+            "password": $("#registerForm").find("input")[1].value
+        }
+        // $.ajax({
+        //     type: "POST",
+        //     url: "http://localhost:8000/"
+        // })
+    }
+    
+    function checkSMS() {
+
+    }
+
+    </script>
 
 </html>
