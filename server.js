@@ -8,6 +8,7 @@ const port = 8000;
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('./app/web'))
 
 MongoClient.connect(db.url, (err, database) => {
   if (err) return console.log(err)
