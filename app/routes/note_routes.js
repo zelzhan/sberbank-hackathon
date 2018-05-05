@@ -1,15 +1,15 @@
 const mongodb        = require('mongodb');
-const sms            = require('../sms/smsc_api');
+const sms            = require('../sms');
 const path           = require('path');
 
-sms.configure({
-  login: 'vk_510857',
-  password: 'dauletdoka1'
-})
+// sms.configure({
+//   login: 'vk_510857',
+//   password: 'dauletdoka1'
+// })
 
-sms.test((err) => {
-  if(err) return console.log("SMS/Error: " + err)
-})
+// sms.test((err) => {
+//   if(err) return console.log("SMS/Error: " + err)
+// })
 
 module.exports = function(app, db) {
 
@@ -77,7 +77,10 @@ module.exports = function(app, db) {
         if (err) return console.log(err, 'code: '+code);
         console.log(data); // object
         console.log(raw); // string in JSON format
+        res.status(200)
+          .send("successful")
     });
+  
     
     })
 
@@ -104,6 +107,36 @@ module.exports = function(app, db) {
         }
       })
 
+    })
+
+    app.post('/genSMScode', (req, res) => {
+      var verification_number = Math.floor(Math.random() * 100000) + 100000
+      const details = {'login':req.body.login, 'password':req.body.password, 'number':req.body.number, 'verification_code':verification_code}
+      db.collection('users_pending').insert(details, (err, result) => {
+        if (err) { 
+          res.send({ 'error': 'An error has occurred' }); 
+        } else {
+          res.send(result.ops[0]);
+        }
+      });
+    })
+
+    app.post('/verifySMScode', (req, res) => {
+      const details = {'verification_code': req.body.verification_code} 
+      db.collection('users_pending').findOne(details, (err, item) => {
+        if(err) {
+          res.status(404)
+            .send('Not found');
+        }
+        else {
+          res.status(200)
+            .sendFile(path.join(__dirname + "/../web/private/index.html"))
+        }
+      })
+    })
+
+    app.post('/register', (req, res) => {
+      const details = {'login': req.body.login, 'password': req.body.password, 'password_verify':req.body.password_verify}
     })
 
     /* WEBSITE ENDS HERE */
