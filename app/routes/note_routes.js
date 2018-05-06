@@ -31,69 +31,244 @@ module.exports = function(app, db) {
     res.send("LOL")
   })
   
-  app.get(/^\/(api)\/(.+)/, (req, res) => {
+  app.get('/api/bank_accounts', (req, res) => {
     var thetoken = req.headers.authorization;
     db.collection('users').findOne({token: thetoken}, (err, item) => {
-      if (err) {
-        res.send({'error':'An error has occurred'});
-      } else if (item != null) {
-        // console.log(item)
-        var url = req.url.substr(4);
-                        /*elasticClient.get({
-                          index: "sberbank",
-                          type: "users",
-                          id: ""
-                        }, function(elas_err, elas_res) {
-                        })*/
-
+      var url = req.url.substr(4);
+      if(err) {res.send({'error':'An error has occurred'});} 
+      else if(item != null) {
         request.get({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
-          // console.log(ELASTIC_URL+url)
-          console.log(body)
-
-          res.status(200)
-            .send(body);
-          
+          if(err) res.status(403).send();
+          else res.status(200).send(body);
         })
-        // console.log(url)
-        
-        
       } else {
-        res.status(404)
-        .send();
+        res.status(200)
+            .send(body);
       }
-    });
+    })
   })
 
-  app.post(/^\/(api)\/(.+)/, (req, res) => {
+  app.get('/api/bank_accounts/:id', (req, res) => {
     var thetoken = req.headers.authorization;
     db.collection('users').findOne({token: thetoken}, (err, item) => {
-      if (err) {
-        res.send({'error':'An error has occurred'});
-      } else if (item != null) {
-        // console.log(item)
-        var url = req.url.substr(4);
-                        /*elasticClient.get({
-                          index: "sberbank",
-                          type: "users",
-                          id: ""
-                        }, function(elas_err, elas_res) {
-                        })*/
-
-        request.post({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
-          // console.log(ELASTIC_URL+url)
-          console.log(body)
-          res.status(200)
-            .send(body);
+      var url = req.url.substr(4);
+      if(err) {res.send({'error':'An error has occurred'});} 
+      else if(item != null) {
+        request.get({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
+          if(err) res.status(403).send();
+          else res.status(200).send(body);
         })
-        // console.log(url)
+      } else {
+        res.status(200)
+            .send(body);
+      }
+    })
+  })
+
+  app.post('/api/bank_account', (req, res) => {
+    var thetoken = req.headers.authorization;
+    var details = {owner: req.body.owner, number: req.body.number}
+    db.collection('users').findOne({token: thetoken}, (err, item) => {
+      var url = req.url.substr(4);
+      if(err) {res.send({'error':'An error has occurred'});} 
+      else if(item != null) {
+        db.collection('bank_accounts').insert(details, (err, item) => {
+          if (err) {
+            res.send({'error':'An error has occurred'});
+          } else {
+            request.post({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
+              if(err) res.status(403).send();
+              else res.status(200).send(body);
+            })
+          } 
+        });
+        
+      } else {
+        res.status(200)
+            .send();
+      }
+    })
+  })
+
+  app.put('/api/bank_accounts/:id', (req, res) => {
+    var thetoken = req.headers.authorization;
+    const id = req.params.id;
+    const details = { '_id': mongodb.ObjectId(id) };
+    db.collection('users').findOne({token: thetoken}, (err, item) => {
+      var url = req.url.substr(4);
+      if(err) {res.send({'error':'An error has occurred'});} 
+      else if(item != null) {
+        db.collection('bank_accounts').update(details, {$set: {a:1}}, (err, item) => {
+          if (err) {
+            res.send({'error':'An error has occurred'});
+          } else {
+            request.put({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
+              if(err) res.status(403).send();
+              else res.status(200).send(body);
+            })
+          } 
+        });
+        
+      } else {
+        res.status(200)
+            .send();
+      }
+    })
+  })
+
+  app.delete('/api/bank_accounts/:id', (req, res) => {
+    var thetoken = req.headers.authorization;
+    const id = req.params.id;
+    console.log("ID = " + id);
+    const details = { '_id': mongodb.ObjectId(id) };
+    db.collection('users').findOne({token: thetoken}, (err, item) => {
+      var url = req.url.substr(4);
+      console.log(item)
+      if(err) {res.send({'error':'An error has occurred'});} 
+      else if(item != null) {
+        db.collection('bank_accounts').remove(details, (err, item) => {
+          if (err) {
+            res.send({'error':'An error has occurred'});
+          } else {
+            request.delete({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
+              if(err) res.status(403).send();
+              else res.status(200).send(body);
+            })
+          } 
+        });
+        
+      } else {
+        res.status(200)
+            .send();
+      }
+    })
+  })
+
+  // app.get(/^\/(api)\/(.+)/, (req, res) => {
+  //   var thetoken = req.headers.authorization;
+  //   db.collection('users').findOne({token: thetoken}, (err, item) => {
+  //     if (err) {
+  //       res.send({'error':'An error has occurred'});
+  //     } else if (item != null) {
+  //       // console.log(item)
+  //       var url = req.url.substr(4);
+  //                       /*elasticClient.get({
+  //                         index: "sberbank",
+  //                         type: "users",
+  //                         id: ""
+  //                       }, function(elas_err, elas_res) {
+  //                       })*/
+
+  //       request.get({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
+  //         // console.log(ELASTIC_URL+url)
+  //         console.log(body)
+
+  //         res.status(200)
+  //           .send(body);
+          
+  //       })
+  //       // console.log(url)
+        
+        
+  //     } else {
+  //       res.status(404)
+  //       .send();
+  //     }
+  //   });
+  // })
+
+  // app.post(/^\/(api)\/(.+)/, (req, res) => {
+  //   var thetoken = req.headers.authorization;
+  //   db.collection('users').findOne({token: thetoken}, (err, item) => {
+  //     if (err) {
+  //       res.send({'error':'An error has occurred'});
+  //     } else if (item != null) {
+  //       // console.log(item)
+  //       var url = req.url.substr(4);
+  //                       /*elasticClient.get({
+  //                         index: "sberbank",
+  //                         type: "users",
+  //                         id: ""
+  //                       }, function(elas_err, elas_res) {
+  //                       })*/
+
+  //       request.post({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
+  //         // console.log(ELASTIC_URL+url)
+  //         console.log(body)
+  //         res.status(200)
+  //           .send(body);
+  //       })
+  //       // console.log(url)
        
         
-      } else {
-        res.status(404)
-        .send();
-      }
-    });
-  })
+  //     } else {
+  //       res.status(404)
+  //       .send();
+  //     }
+  //   });
+  // })
+
+  // app.put(/^\/(api)\/(.+)/, (req, res) => {
+  //   var thetoken = req.headers.authorization;
+  //   db.collection('users').findOne({token: thetoken}, (err, item) => {
+  //     if (err) {
+  //       res.send({'error':'An error has occurred'});
+  //     } else if (item != null) {
+  //       // console.log(item)
+  //       var url = req.url.substr(4);
+  //                       /*elasticClient.get({
+  //                         index: "sberbank",
+  //                         type: "users",
+  //                         id: ""
+  //                       }, function(elas_err, elas_res) {
+  //                       })*/
+
+  //       request.put({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
+  //         // console.log(ELASTIC_URL+url)
+  //         console.log(body)
+  //         res.status(200)
+  //           .send(body);
+  //       })
+  //       // console.log(url)
+       
+        
+  //     } else {
+  //       res.status(404)
+  //       .send();
+  //     }
+  //   });
+  // })
+
+  // app.delete(/^\/(api)\/(.+)/, (req, res) => {
+  //   var thetoken = req.headers.authorization;
+  //   db.collection('users').findOne({token: thetoken}, (err, item) => {
+  //     if (err) {
+  //       res.send({'error':'An error has occurred'});
+  //     } else if (item != null) {
+  //       // console.log(item)
+  //       var url = req.url.substr(4);
+  //                       /*elasticClient.get({
+  //                         index: "sberbank",
+  //                         type: "users",
+  //                         id: ""
+  //                       }, function(elas_err, elas_res) {
+  //                       })*/
+
+  //       request.delete({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
+  //         // console.log(ELASTIC_URL+url)
+  //         console.log(body)
+  //         res.status(200)
+  //           .send(body);
+  //       })
+  //       // console.log(url)
+       
+        
+  //     } else {
+  //       res.status(404)
+  //       .send();
+  //     }
+  //   });
+  // })
     /* ELASTIC ENDS HERE */
 
     /* MONGODB STARTS HERE */
