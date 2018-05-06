@@ -102,6 +102,7 @@ module.exports = function(app, db) {
             .send('Not found');
         }
         else {
+          console.log(item)
           res.status(200)
             .sendFile(path.join(__dirname + "/../web/private/index.html"))
         }
@@ -109,41 +110,63 @@ module.exports = function(app, db) {
 
     })
 
-    app.post('/genSMScode', (req, res) => {
-      var verification_number = Math.floor(Math.random() * 100000) + 100000
-      const details = {'login':req.body.login, 'password':req.body.password, 'number':req.body.number, 'verification_code':verification_code}
-      db.collection('users_pending').insert(details, (err, result) => {
-        if (err) { 
-          res.send({ 'error': 'An error has occurred' }); 
-        } else {
-          res.send(result.ops[0]);
-        }
-      });
-    })
-
     app.post('/verifySMScode', (req, res) => {
-      const details = {'verification_code': req.body.verification_code} 
-      db.collection('users_pending').findOne(details, (err, item) => {
+      const details = {login: req.body.login}
+
+      db.collection('users').findOne(details, (err, item) => {
         if(err) {
           res.status(404)
             .send('Not found');
         }
         else {
-          res.status(200)
-            .sendFile(path.join(__dirname + "/../web/private/index.html"))
+
+          console.log(item)
+          db.collection('users').update(details, {$set: {'active': 'true'}}, (err, result) => {
+            if (err) {
+              res.send({'error':'An error has occurred'});
+          } else {
+              res.send("DONE!");
+          } 
+          })
         }
       })
+
+      
     })
 
+
     app.post('/register', (req, res) => {
-      const details = {'login': req.body.login, 'password': req.body.password}
-      db.collection('users').insert(details, (err, result) => {
-        if (err) { 
-          res.send({ 'error': 'An error has occurred' }); 
-        } else {
-          res.redirect('/')
+      var verification_number = Math.floor(Math.random() * 100000) + 100000
+      const details = {'login': req.body.login, 'password': req.body.password, 'telnum': req.body.telnum, 'active': "false", 'verification_number': verification_number}
+      
+      db.collection('users').findOne({login:details.login}, (err, item) => {
+        if(err) {
+          res.status(404)
+            .send('Not found');
         }
-      });
+        else {
+
+          console.log(item)
+
+          if(item == null) {
+            db.collection('users').insert(details, (err, result) => {
+              if (err) { 
+                res.send({ 'error': 'An error has occurred' }); 
+              } else {
+                // Send sms
+                res.status(200)
+                  .sendFile(path.join(__dirname + "/../web/verify.html"))
+              }
+            });
+          } else {
+            res.status(200)
+              .redirect('/')
+          }
+          
+        }
+      })
+      
+      
     })
 
     /* WEBSITE ENDS HERE */
