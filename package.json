@@ -15,7 +15,8 @@
     "elasticsearch": "^14.2.2",
     "express": "^4.16.3",
     "form-data": "^2.3.2",
-    "mongodb": "^2.2.16"
+    "mongodb": "^2.2.16",
+    "request": "^2.85.0"
   },
   "devDependencies": {
     "nodemon": "^1.17.3"

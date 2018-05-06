@@ -3,6 +3,9 @@ const sms            = require('../sms');
 const path           = require('path');
 const crypto         = require('crypto');
 const elasticClient  = require('../elasticsearch');
+const request        = require('request');
+
+const ELASTIC_URL = "http://localhost:9200/sberbank"
 
 // sms.configure({
 //   login: 'vk_510857',
@@ -22,6 +25,10 @@ function generateHash(login) {
 module.exports = function(app, db) {
 
     /* ELASTIC STARTS HERE */
+
+  app.post("/lol", (req, res) => {
+    res.send("LOL")
+  })
   
   app.post(/^\/(api)\/(.+)/, (req, res) => {
     var thetoken = req.headers.authorization;
@@ -31,12 +38,18 @@ module.exports = function(app, db) {
       } else if (item != null) {
         console.log(item)
         var url = req.url.substr(4);
-        elasticClient.get({
-          index: "sberbank",
-          type: "users",
-          id: ""
-        }, function(elas_err, elas_res) {
+                        /*elasticClient.get({
+                          index: "sberbank",
+                          type: "users",
+                          id: ""
+                        }, function(elas_err, elas_res) {
+                        })*/
+
+        request.post({url:ELASTIC_URL+url}, (err, httpResponse, body) => {
+          console.log(ELASTIC_URL+url)
+          console.log(body)
         })
+        // console.log(url)
         res.status(200)
         .send();
       } else {
