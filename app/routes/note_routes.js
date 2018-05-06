@@ -83,7 +83,7 @@ module.exports = function(app, db) {
           // console.log(ELASTIC_URL+url)
           console.log(body)
           res.status(200)
-            .json(body);
+            .send(body);
         })
         // console.log(url)
        
@@ -98,6 +98,7 @@ module.exports = function(app, db) {
 
     /* MONGODB STARTS HERE */
 
+    /* TEST METHODS
     app.get('/notes/:id', (req, res) => {
         const id = req.params.id;
         const details = { '_id': mongodb.ObjectId(id) };
@@ -147,6 +148,9 @@ module.exports = function(app, db) {
         });
       });
 
+
+    */
+
     /* MONGODB ENDS HERE */
 
     /* SMS STARTS HERE */
@@ -186,8 +190,13 @@ module.exports = function(app, db) {
         }
         else {
           console.log(item)
-          res.status(200)
+          if(item != null && item.active == "true") {
+            res.status(200)
             .sendFile(path.join(__dirname + "/../web/private/index.html"))
+          } else {
+            res.status(200)
+                  .sendFile(path.join(__dirname + "/../web/verify.html"))
+          }
         }
       })
 
@@ -203,7 +212,12 @@ module.exports = function(app, db) {
         }
         else {
 
-          console.log(item)
+          console.log(item.verification_number)
+          console.log(req.body.verification_number)
+          console.log(item.verification_number != req.body.verification_number)
+          if(item.verification_number != req.body.verification_number) {
+            res.status(403).send("Wrong verification code")
+          }
           db.collection('users').update(details, {$set: {'active': 'true'}}, (err, result) => {
             if (err) {
               res.send({'error':'An error has occurred'});
