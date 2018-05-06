@@ -2,6 +2,7 @@ const mongodb        = require('mongodb');
 const sms            = require('../sms');
 const path           = require('path');
 const crypto         = require('crypto');
+const elasticClient  = require('../elasticsearch');
 
 // sms.configure({
 //   login: 'vk_510857',
@@ -29,7 +30,13 @@ module.exports = function(app, db) {
         res.send({'error':'An error has occurred'});
       } else if (item != null) {
         console.log(item)
-        console.log(req.url.substr(4))
+        var url = req.url.substr(4);
+        elasticClient.get({
+          index: "sberbank",
+          type: "users",
+          id: ""
+        }, function(elas_err, elas_res) {
+        })
         res.status(200)
         .send();
       } else {
