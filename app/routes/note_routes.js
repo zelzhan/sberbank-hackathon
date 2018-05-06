@@ -27,6 +27,7 @@ module.exports = function(app, db) {
     /* ELASTIC STARTS HERE */
 
   app.post("/lol", (req, res) => {
+    console.log(req)
     res.send("LOL")
   })
   
@@ -36,7 +37,7 @@ module.exports = function(app, db) {
       if (err) {
         res.send({'error':'An error has occurred'});
       } else if (item != null) {
-        console.log(item)
+        // console.log(item)
         var url = req.url.substr(4);
                         /*elasticClient.get({
                           index: "sberbank",
@@ -45,13 +46,15 @@ module.exports = function(app, db) {
                         }, function(elas_err, elas_res) {
                         })*/
 
-        request.post({url:ELASTIC_URL+url}, (err, httpResponse, body) => {
-          console.log(ELASTIC_URL+url)
+        request.get({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
+          // console.log(ELASTIC_URL+url)
           console.log(body)
+          
         })
         // console.log(url)
         res.status(200)
-        .send();
+            .send();
+        
       } else {
         res.status(404)
         .send();
@@ -203,6 +206,16 @@ module.exports = function(app, db) {
                 res.send({ 'error': 'An error has occurred' }); 
               } else {
                 // Send sms
+                sms.send_sms({
+                  phones: req.body.telnum,
+                  mes: 'Здравствуйте, ваш код: ' + verification_number,
+                  cost: 0.000001 
+                }, function(data, raw, err, code) {
+                  if (err) return console.log(err, 'code: '+code);
+                  console.log(data); // object
+                  console.log(raw); // string in JSON format
+                })
+                //
                 res.status(200)
                   .sendFile(path.join(__dirname + "/../web/verify.html"))
               }
