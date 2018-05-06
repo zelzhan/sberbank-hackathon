@@ -1,6 +1,7 @@
 const mongodb        = require('mongodb');
 const sms            = require('../sms');
 const path           = require('path');
+const crypto         = require('crypto');
 
 // sms.configure({
 //   login: 'vk_510857',
@@ -11,7 +12,34 @@ const path           = require('path');
 //   if(err) return console.log("SMS/Error: " + err)
 // })
 
+function generateHash(login) {
+  var seed = crypto.randomBytes(20);
+  var authToken = crypto.createHash('sha1').update(seed + login).digest('hex');
+  return authToken;
+}
+
 module.exports = function(app, db) {
+
+    /* ELASTIC STARTS HERE */
+  
+  app.post(/^\/(api)\/(.+)/, (req, res) => {
+    var thetoken = req.headers.authorization;
+    db.collection('users').findOne({token: thetoken}, (err, item) => {
+      if (err) {
+        res.send({'error':'An error has occurred'});
+      } else if (item != null) {
+        console.log(item)
+        console.log(req.url.substr(4))
+        res.status(200)
+        .send();
+      } else {
+        res.status(404)
+        .send();
+      }
+    });
+  })
+
+    /* ELASTIC ENDS HERE */
 
     /* MONGODB STARTS HERE */
 
@@ -137,7 +165,8 @@ module.exports = function(app, db) {
 
     app.post('/register', (req, res) => {
       var verification_number = Math.floor(Math.random() * 100000) + 100000
-      const details = {'login': req.body.login, 'password': req.body.password, 'telnum': req.body.telnum, 'active': "false", 'verification_number': verification_number}
+      var hash = generateHash(req.body.login)
+      const details = {'login': req.body.login, 'password': req.body.password, 'telnum': req.body.telnum, 'active': "false", 'verification_number': verification_number, 'token': hash}
       
       db.collection('users').findOne({login:details.login}, (err, item) => {
         if(err) {
