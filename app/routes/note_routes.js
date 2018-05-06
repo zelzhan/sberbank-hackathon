@@ -31,7 +31,7 @@ module.exports = function(app, db) {
     res.send("LOL")
   })
   
-  app.post(/^\/(api)\/(.+)/, (req, res) => {
+  app.get(/^\/(api)\/(.+)/, (req, res) => {
     var thetoken = req.headers.authorization;
     db.collection('users').findOne({token: thetoken}, (err, item) => {
       if (err) {
@@ -49,11 +49,13 @@ module.exports = function(app, db) {
         request.get({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
           // console.log(ELASTIC_URL+url)
           console.log(body)
+
+          res.status(200)
+            .send(body);
           
         })
         // console.log(url)
-        res.status(200)
-            .send();
+        
         
       } else {
         res.status(404)
@@ -62,6 +64,36 @@ module.exports = function(app, db) {
     });
   })
 
+  app.post(/^\/(api)\/(.+)/, (req, res) => {
+    var thetoken = req.headers.authorization;
+    db.collection('users').findOne({token: thetoken}, (err, item) => {
+      if (err) {
+        res.send({'error':'An error has occurred'});
+      } else if (item != null) {
+        // console.log(item)
+        var url = req.url.substr(4);
+                        /*elasticClient.get({
+                          index: "sberbank",
+                          type: "users",
+                          id: ""
+                        }, function(elas_err, elas_res) {
+                        })*/
+
+        request.post({url:ELASTIC_URL + url}, (err, httpResponse, body) => {
+          // console.log(ELASTIC_URL+url)
+          console.log(body)
+          res.status(200)
+            .json(body);
+        })
+        // console.log(url)
+       
+        
+      } else {
+        res.status(404)
+        .send();
+      }
+    });
+  })
     /* ELASTIC ENDS HERE */
 
     /* MONGODB STARTS HERE */
