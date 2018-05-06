@@ -13,4 +13,8 @@
 
 ![picture alt](https://github.com/seekmtheseeker/sberbank_hackathon/blob/master/images/schema.jpg "Title is optional")
 
-Схема для презентации в папке images
+
+#### Команда Depressivnie & Smewnie ####
+1. Елжан Зейнулла, 1 курс Computer Science, Назарбаев Университет
+2. Демежан Мариков, 1 курс Computer Science, Назарбаев Университет
+3. Даулет Амирханов, 1 курс Computer Science, Назарбаев Университет
