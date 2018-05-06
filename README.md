@@ -1,5 +1,9 @@
-Использовано:
+RESTful API для Сбербанка:
 
+https://zelzhan.github.io/sberbank-hackathon/
+
+
+Использовано:
 1. Node.JS
     1. Express
     2. Smsc_api (http://smsc.kz)
