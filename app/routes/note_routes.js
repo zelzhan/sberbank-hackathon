@@ -8,8 +8,8 @@ const request        = require('request');
 const ELASTIC_URL = "http://localhost:9200/sberbank"
 
 // sms.configure({
-//   login: 'vk_510857',
-//   password: 'dauletdoka1'
+//   login: 'admin',
+//   password: 'password'
 // })
 
 // sms.test((err) => {
