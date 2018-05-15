@@ -1,8 +1,8 @@
 var sms = require('./smsc_api');
 
 sms.configure({
-  login: 'vk_510857',
-  password: 'dauletdoka1'
+  login: 'admin',
+  password: 'password'
 })
 
 sms.test((err) => {
